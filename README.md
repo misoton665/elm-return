@@ -1,3 +1,9 @@
+# elm-return
+
+This package provides a Return type that builds a structure for scalable programming on TEA.
+
+---
+
 This is inspired by:
   - https://github.com/Fresheyeball/elm-return
   - https://github.com/purescript-halogen/purescript-halogen
