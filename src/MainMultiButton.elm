@@ -51,7 +51,11 @@ type Msg
 
 init : Flag -> ( Model, Cmd Msg )
 init _ =
-    ( { counterButton1 = CounterButton.zero, counterButton2 = CounterButton.zero, textForm = TextForm.empty, messages = Messages.empty }
+    ( { counterButton1 = CounterButton.zero
+      , counterButton2 = CounterButton.zero
+      , textForm = TextForm.empty
+      , messages = Messages.empty
+      }
     , Cmd.none
     )
 
@@ -68,51 +72,48 @@ update msg model =
         CounterButtonMsg1 msg_ ->
             CounterButton.update msg_
                 |> transformFromCounterButton1
+                |> Return.consumeOutputs updateByCounterButtonOutput
 
         CounterButtonMsg2 msg_ ->
             CounterButton.update msg_
                 |> transformFromCounterButton2
+                |> Return.consumeOutputs updateByCounterButtonOutput
 
         TextFormMsg msg_ ->
             TextForm.update msg_ model.textForm
                 |> transformFromTextForm
+                |> Return.consumeOutputs updateByTextFormOutput
 
         ClickedResetButton ->
             let
-                return1 =
-                    CounterButton.updateByQuery model.counterButton1 CounterButton.TellResetting
+                resetCounter1 =
+                    CounterButton.reset
                         |> transformFromCounterButton1
+                        |> Return.consumeOutputs updateByCounterButtonOutput
 
-                return2 =
-                    CounterButton.updateByQuery model.counterButton2 CounterButton.TellResetting
+                resetCounter2 =
+                    CounterButton.reset
                         |> transformFromCounterButton2
+                        |> Return.consumeOutputs updateByCounterButtonOutput
 
-                return3 =
+                pushMessage =
                     returnModel (Messages.push "ResetAll")
                         |> transformFromMessages
             in
-            Return.mergeAll [ return1, return2, return3 ]
+            Return.mergeAll [ resetCounter1, resetCounter2, pushMessage ]
 
         ClickedLookButton ->
             let
-                return1 =
-                    CounterButton.updateByQuery model.counterButton1 CounterButton.RequestCount
-                        |> transformFromCounterButton1
-
-                return2 =
-                    CounterButton.updateByQuery model.counterButton2 CounterButton.RequestCount
-                        |> transformFromCounterButton2
+                pushCount =
+                    CounterButton.count >> pushCountMessage
             in
-            Return.merge return1 return2
+            returnModel (pushCount model.counterButton1 >> pushCount model.counterButton2)
+                |> transformFromMessages
 
 
 updateByCounterButtonOutput : CounterButton.Output -> Return Model msg out
 updateByCounterButtonOutput output =
     case output of
-        CounterButton.Count count ->
-            returnModel (pushCountMessage count)
-                |> transformFromMessages
-
         CounterButton.DoneResetting ->
             returnModel pushResetMessage
                 |> transformFromMessages
@@ -123,31 +124,27 @@ updateByTextFormOutput output =
     case output of
         TextForm.ButtonClicked txt ->
             let
-                push =
+                pushMessage =
                     returnModel (Messages.push txt)
                         |> transformFromMessages
 
-                clear =
-                    TextForm.updateByQuery TextForm.TellClear
+                clearForm =
+                    TextForm.clear
                         |> transformFromTextForm
             in
-            Return.merge push clear
+            Return.merge pushMessage clearForm
 
 
-transformFromCounterButton1 : Return CounterButton.Model CounterButton.Msg CounterButton.Output -> Return Model Msg out
+transformFromCounterButton1 : Return CounterButton.Model CounterButton.Msg out -> Return Model Msg out
 transformFromCounterButton1 =
     Return.transformModel .counterButton1 (\model c -> { model | counterButton1 = c })
         >> Return.mapCmd CounterButtonMsg1
-        >> Return.handleOutputs updateByCounterButtonOutput
-        >> Return.clearOutputs
 
 
-transformFromCounterButton2 : Return CounterButton.Model CounterButton.Msg CounterButton.Output -> Return Model Msg out
+transformFromCounterButton2 : Return CounterButton.Model CounterButton.Msg out -> Return Model Msg out
 transformFromCounterButton2 =
     Return.transformModel .counterButton2 (\model c -> { model | counterButton2 = c })
         >> Return.mapCmd CounterButtonMsg2
-        >> Return.handleOutputs updateByCounterButtonOutput
-        >> Return.clearOutputs
 
 
 transformFromMessages : Return Messages msg out -> Return Model msg out
@@ -155,12 +152,10 @@ transformFromMessages =
     Return.transformModel .messages (\model m -> { model | messages = m })
 
 
-transformFromTextForm : Return TextForm.Model TextForm.Msg TextForm.Output -> Return Model Msg out
+transformFromTextForm : Return TextForm.Model TextForm.Msg out -> Return Model Msg out
 transformFromTextForm =
     Return.transformModel .textForm (\model t -> { model | textForm = t })
         >> Return.mapCmd TextFormMsg
-        >> Return.handleOutputs updateByTextFormOutput
-        >> Return.clearOutputs
 
 
 view : Model -> Html Msg

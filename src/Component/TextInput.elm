@@ -1,4 +1,4 @@
-module Component.TextInput exposing (Model, Msg, Output(..), Query(..), empty, new, text, update, updateByQuery, view)
+module Component.TextInput exposing (Model, Msg, Output(..), empty, new, text, update, setText, clear, view)
 
 import Html exposing (Attribute, Html, input)
 import Html.Attributes exposing (type_, value)
@@ -29,31 +29,26 @@ type Output
     = DoneClear
 
 
-type Query
-    = TellText String
-    | TellClear
+setText : String -> Return Model msg out
+setText t =
+    returnModel <| \_ -> new t
 
 
-updateByQuery : Query -> Return Model Msg Output
-updateByQuery query =
-    case query of
-        TellText t ->
-            returnModel <| \_ -> new t
-
-        TellClear ->
-            returnModel (\_ -> empty)
-                |> withOutput DoneClear
+clear : Return Model msg Output
+clear =
+    returnModel (\_ -> empty)
+        |> withOutput DoneClear
 
 
 type Msg
     = Entered String
 
 
-update : Msg -> Return Model Msg Output
+update : Msg -> Return Model msg out
 update msg =
     case msg of
         Entered t ->
-            returnModel (\_ -> new t)
+            setText t
 
 
 view : Model -> Html Msg

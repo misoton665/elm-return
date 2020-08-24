@@ -46,7 +46,9 @@ type Msg
 
 init : Flag -> ( Model, Cmd Msg )
 init _ =
-    ( { counterButton = CounterButton.zero, messages = Messages.empty }
+    ( { counterButton = CounterButton.zero
+      , messages = Messages.empty
+      }
     , Cmd.none
     )
 
@@ -63,32 +65,35 @@ update msg model =
         CounterButtonMsg msg_ ->
             CounterButton.update msg_
                 |> transformFromCounterButton
+                |> Return.consumeOutputs updateByCounterButtonOutput
 
         ClickedResetButton ->
-            CounterButton.updateByQuery model.counterButton CounterButton.TellResetting
+            CounterButton.reset
                 |> transformFromCounterButton
+                |> Return.consumeOutputs updateByCounterButtonOutput
 
         ClickedLookButton ->
-            CounterButton.updateByQuery model.counterButton CounterButton.RequestCount
-                |> transformFromCounterButton
+            returnModel (pushCountMessage <| CounterButton.count model.counterButton)
+                |> transformFromMessages
 
 
 updateByCounterButtonOutput : CounterButton.Output -> Return Model Msg out
 updateByCounterButtonOutput output =
     case output of
-        CounterButton.Count count ->
-            returnModel (\m -> { m | messages = pushCountMessage count m.messages })
-
         CounterButton.DoneResetting ->
-            returnModel (\m -> { m | messages = pushResetMessage m.messages })
+            returnModel pushResetMessage
+                |> transformFromMessages
 
 
-transformFromCounterButton : Return CounterButton.Model CounterButton.Msg CounterButton.Output -> Return Model Msg out
+transformFromCounterButton : Return CounterButton.Model CounterButton.Msg out -> Return Model Msg out
 transformFromCounterButton =
     Return.transformModel .counterButton (\model counterButton -> { model | counterButton = counterButton })
         >> Return.mapCmd CounterButtonMsg
-        >> Return.handleOutputs updateByCounterButtonOutput
-        >> Return.clearOutputs
+
+
+transformFromMessages : Return Messages msg out -> Return Model msg out
+transformFromMessages =
+    Return.transformModel .messages (\model m -> { model | messages = m })
 
 
 view : Model -> Html Msg

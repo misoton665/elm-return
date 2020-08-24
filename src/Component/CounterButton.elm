@@ -1,4 +1,4 @@
-module Component.CounterButton exposing (Model, Msg, Output(..), Query(..), update, updateByQuery, view, zero)
+module Component.CounterButton exposing (Model, count, Msg, Output(..), update, reset, view, zero)
 
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (onClick)
@@ -10,8 +10,8 @@ type Model
 
 
 countUp : Model -> Model
-countUp (CounterButton count) =
-    CounterButton <| count + 1
+countUp (CounterButton c) =
+    CounterButton <| c + 1
 
 
 zero : Model
@@ -19,30 +19,19 @@ zero =
     CounterButton 0
 
 
-count_ : Model -> Int
-count_ (CounterButton count) =
-    count
+reset : Return Model Msg Output
+reset =
+    returnModel (\_ -> zero)
+        |> withOutput DoneResetting
+
+
+count : Model -> Int
+count (CounterButton c) =
+    c
 
 
 type Output
-    = Count Int
-    | DoneResetting
-
-
-type Query
-    = RequestCount
-    | TellResetting
-
-
-updateByQuery : Model -> Query -> Return Model Msg Output
-updateByQuery model query =
-    case query of
-        RequestCount ->
-            returnOutput <| Count <| count_ model
-
-        TellResetting ->
-            returnModel (\_ -> zero)
-                |> withOutput DoneResetting
+    = DoneResetting
 
 
 type Msg
@@ -57,8 +46,7 @@ update msg =
             returnModel countUp
 
         ClickedReset ->
-            returnModel (\_ -> zero)
-                |> withOutput DoneResetting
+            reset
 
 
 view : Html Msg

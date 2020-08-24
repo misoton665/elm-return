@@ -4,6 +4,7 @@ module Support.Return exposing
     , asCmd
     , asOutputs
     , clearOutputs
+    , consumeOutputs
     , handleOutputs
     , mapCmd
     , mapOutputs
@@ -62,39 +63,23 @@ type alias WithF mod msg out a =
 
 
 withModel : WithF mod msg out (ModelModifier mod)
-withModel model (Return { modelModifierM, cmd, outputs }) =
-    Return
-        { modelModifierM = mergeMaybeModel modelModifierM (Just model)
-        , cmd = cmd
-        , outputs = outputs
-        }
+withModel model (Return r) =
+    Return { r | modelModifierM = mergeMaybeModel r.modelModifierM (Just model) }
 
 
 withCmd : WithF mod msg out (Cmd msg)
-withCmd cmd_ (Return { modelModifierM, cmd, outputs }) =
-    Return
-        { modelModifierM = modelModifierM
-        , cmd = mergeCmd cmd cmd_
-        , outputs = outputs
-        }
+withCmd cmd_ (Return r) =
+    Return { r | cmd = mergeCmd r.cmd cmd_ }
 
 
 withOutput : WithF mod msg out out
-withOutput output (Return { modelModifierM, cmd, outputs }) =
-    Return
-        { modelModifierM = modelModifierM
-        , cmd = cmd
-        , outputs = pushOutput output outputs
-        }
+withOutput output (Return r) =
+    Return { r | outputs = pushOutput output r.outputs }
 
 
 withOutputs : WithF mod msg out (List out)
-withOutputs outputs_ (Return { modelModifierM, cmd, outputs }) =
-    Return
-        { modelModifierM = modelModifierM
-        , cmd = cmd
-        , outputs = mergeOutputs outputs outputs_
-        }
+withOutputs outputs_ (Return r) =
+    Return { r | outputs = mergeOutputs r.outputs outputs_ }
 
 
 
@@ -201,10 +186,16 @@ mergeAll =
 -- Transform and map
 
 
-transformModel : (mod_ -> mod) -> (mod_ -> mod -> mod_) -> Return mod msg out -> Return mod_ msg out
+transformModel : (after -> before) -> (after -> before -> after) -> Return before msg out -> Return after msg out
 transformModel from to (Return { modelModifierM, cmd, outputs }) =
+    let
+        toTransformedModelModifier beforeModifier afterModel =
+            from afterModel
+                |> beforeModifier
+                |> to afterModel
+    in
     Return
-        { modelModifierM = Maybe.map (\mf -> \m_ -> from m_ |> mf |> to m_) modelModifierM
+        { modelModifierM = Maybe.map toTransformedModelModifier modelModifierM
         , cmd = cmd
         , outputs = outputs
         }
@@ -249,3 +240,8 @@ clearOutputs (Return r) =
         , cmd = r.cmd
         , outputs = []
         }
+
+
+consumeOutputs : (out -> Return mod msg out) -> Return mod msg out -> Return mod msg out_
+consumeOutputs handle =
+    handleOutputs handle >> clearOutputs

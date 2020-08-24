@@ -1,4 +1,4 @@
-module Component.TextForm exposing (Model, Msg, Output(..), Query(..), empty, update, updateByQuery, view)
+module Component.TextForm exposing (Model, Msg, Output(..), empty, update, clear, view)
 
 import Component.TextInput as TextInput
 import Html exposing (Html, button, div, text)
@@ -26,23 +26,17 @@ type Output
     = ButtonClicked String
 
 
-type Query
-    = TellClear
+clear : Return Model Msg out
+clear =
+    TextInput.clear
+        |> transformFromTextInput
+        |> clearOutputs
 
 
-updateByQuery : Query -> Return Model Msg Output
-updateByQuery query =
-    case query of
-        TellClear ->
-            TextInput.updateByQuery TextInput.TellClear
-                |> transformFromTextInput
-
-
-transformFromTextInput : Return TextInput.Model TextInput.Msg TextInput.Output -> Return Model Msg Output
+transformFromTextInput : Return TextInput.Model TextInput.Msg out -> Return Model Msg out
 transformFromTextInput =
     transformModel textInput (\(Model m) t -> Model { m | textInput = t })
         >> mapCmd TextInputMsg
-        >> clearOutputs
 
 
 type Msg
@@ -58,7 +52,9 @@ update msg model =
                 |> transformFromTextInput
 
         ClickedButton ->
-            returnOutput <| ButtonClicked <| (textInput >> TextInput.text) model
+            (textInput >> TextInput.text) model
+                |> ButtonClicked
+                |> returnOutput
 
 
 view : Model -> Html Msg
