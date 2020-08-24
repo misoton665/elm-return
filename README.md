@@ -1,6 +1,6 @@
 # elm-return
 
-This package provides a Return type that builds a structure for scalable programming on TEA.
+This repository proposes a Return type that builds a structure for scalable programming on TEA.
 
 ---
 
