@@ -1,24 +1,24 @@
 # elm-return
 
-This repository proposes a Return type that builds a structure for scalable programming on TEA.
+elm-returnはReturn型を提供することでスケーラブルなモジュールの作成をお手伝いします。
 
 ## Return
 
-An alternative type to (Model, Cmd msg), which is the return value of the general update function.
+Return型はupdate関数の一般的な戻り値である(Model, Cmd msg)型の代替になる型です。
 
 ```elm
 -- before
-update : Msg -> Model -> (Model, Cmd Msg)
+update : Msg -> Model -> ( Model, Cmd Msg )
 
 -- after
 update : Msg -> Return Model Msg Output
 ```
 
-You may have noticed that the Model is missing from the argument; the Model argument is not required if the update function returns Return type.
+引数からModelがなくなったことに気がつきましたか？update関数でReturn型を返す場合、引数のModelは必須ではありません。
 
-The Output type is also new. We'll get to that later.
+Output型も新しく登場しています。これについては後ほど説明します。
 
-Using Return changes the way the update function is written.
+Returnを使うとupdate関数の書き方が少し変わります。
 
 ```elm
 -- before
@@ -53,17 +53,18 @@ update msg =
                 )
 ```
 
-The purpose of using elm-return is to be more declarative, shorter, and to make it easier to connect or separate modules.
+より宣言的で、短く、モジュール同士を簡単に結合もしくは分離できるようにすることがelm-returnを使用する目的です。
 
-The concept of Output is related to connect modules.
+モジュール同士の結合に関わるのがOutputの概念です。
 
-TEA does not define a concrete way to connect modules.
-In elm-return, we define this structurally by introducing Output.
+TEAにはモジュール同士を結合する具体的な方法は定められていません。
+elm-returnではOutputを導入することで構造的にこれを定めます。
 
-Output is, in a word, Msg from one module to another.
+Outputは一言で言うとあるモジュールから他のモジュールへ向けたMsgです。
 
-When there is a parent-child relationship between modules, Output is defined by the child module and interpreted by the parent module.
-In order to separate interests, Output should be written in the word of the child modules.
+モジュール間に親子関係があった場合、Outputは子モジュールが定義し、親モジュールが解釈します。
+関心ごとを分離するためにOutputは子モジュールの言葉で書かれているべきでしょう。
+
 ```elm
 -- Child module
 type Output
@@ -98,7 +99,7 @@ handleChildModuleOutput output =
             returnCmd submit
 ```
 
-The return type is defined as follows.
+Return型は以下のように定義されています。
 
 ```elm
 type Return model msg output
@@ -112,15 +113,12 @@ type alias ModelModifier mod =
     mod -> mod
 ```
 
-model, msg, and output are all mappable, and multiple returns can be merged into a single return. (As for the model, it's not strictly a mapping.)
-
-These functions help with declarative statements.
+ModelModifier model、msg、outputはいずれもマッピング可能で、複数の同じReturnは1つのReturnにマージ可能です。
+それらの関数が宣言的な記述の補助をします。
 
 ---
 
-This is inspired by:
+影響されたもの:
   - https://github.com/Fresheyeball/elm-return
   - https://github.com/purescript-halogen/purescript-halogen
-  - A talk by @jinjor at the Elm meetup at Fringe81; https://fringeneer.hatenablog.com/entry/2019/09/06/135624 (You won't find the slide on this site.)
-
-All English texts have been translated using DeepL 😉.
+  - Fringe81で行われたElm meetupでの@jinjorさんによるトーク; https://fringeneer.hatenablog.com/entry/2019/09/06/135624 (リンク先に該当のスライドはありません)
