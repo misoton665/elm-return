@@ -3,7 +3,7 @@
     "name": "misoton665/elm-return",
     "summary": "Return type helps building a structure for scalable programming on TEA.",
     "license": "MIT",
-    "version": "1.0.2",
+    "version": "1.0.0",
     "exposed-modules": [ "Return" ],
     "source-directories": [
         "src"
