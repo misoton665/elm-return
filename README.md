@@ -123,4 +123,4 @@ This is inspired by:
   - https://github.com/purescript-halogen/purescript-halogen
   - A talk by @jinjor at the Elm meetup at Fringe81; https://fringeneer.hatenablog.com/entry/2019/09/06/135624 (You won't find the slide on this site.)
 
-All English texts have been translated using DeepL 😉.
+All texts have been translated using DeepL 😉.
