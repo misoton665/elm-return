@@ -3,7 +3,7 @@ module Component.TextInput exposing (Model, Msg, Output(..), empty, new, text, u
 import Html exposing (Attribute, Html, input)
 import Html.Attributes exposing (type_, value)
 import Html.Events exposing (onInput)
-import Support.Return exposing (Return, returnModel, withOutput)
+import Return exposing (Return, returnModel, withOutput)
 
 
 type Model

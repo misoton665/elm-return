@@ -1,4 +1,4 @@
-module Support.Return exposing
+module Return exposing
     ( Return
     , applyModel
     , asCmd

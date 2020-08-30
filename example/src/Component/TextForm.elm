@@ -3,7 +3,7 @@ module Component.TextForm exposing (Model, Msg, Output(..), empty, update, clear
 import Component.TextInput as TextInput
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (onClick)
-import Support.Return exposing (Return, clearOutputs, mapCmd, returnOutput, transformModel)
+import Return exposing (Return, clearOutputs, mapCmd, returnOutput, transformModel)
 
 
 type Model
