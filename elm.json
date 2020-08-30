@@ -1,22 +1,18 @@
 {
     "type": "package",
+    "name": "misoton665/elm-return",
+    "summary": "Return type helps building a structure for scalable programming on TEA.",
+    "license": "MIT",
+    "version": "1.0.0",
+    "exposed-modules": [ "Return" ],
     "source-directories": [
         "src"
     ],
-    "elm-version": "0.19.1",
+    "elm-version": "0.19.1 <= v < 0.20.0",
     "dependencies": {
-        "direct": {
-            "elm/core": "1.0.5"
-        },
-        "indirect": {
-        }
+        "elm/core": "1.0.0 <= v < 2.0.0"
     },
     "test-dependencies": {
-        "direct": {
-            "elm-explorations/test": "1.2.2"
-        },
-        "indirect": {
-            "elm/random": "1.0.0"
-        }
+        "elm-explorations/test": "1.2.0 <= v < 2.0.0"
     }
 }
