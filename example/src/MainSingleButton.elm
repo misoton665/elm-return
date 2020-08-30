@@ -5,7 +5,7 @@ import Component.CounterButton as CounterButton
 import Html exposing (Html, br, button, div, text)
 import Html.Events exposing (onClick)
 import Messages as Messages exposing (Messages)
-import Support.Return as Return exposing (Return, returnModel)
+import Return exposing (Return, returnModel)
 
 
 main : Platform.Program Flag Model Msg

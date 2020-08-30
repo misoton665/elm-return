@@ -2,7 +2,7 @@ module ReturnSuite exposing (..)
 
 import Expect exposing (Expectation)
 import Test exposing (..)
-import Support.Return as Return
+import Return as Return
 
 
 type Output

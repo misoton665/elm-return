@@ -2,7 +2,7 @@ module Component.CounterButton exposing (Model, count, Msg, Output(..), update, 
 
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (onClick)
-import Support.Return exposing (Return, returnModel, returnOutput, withOutput)
+import Return exposing (Return, returnModel, withOutput)
 
 
 type Model
